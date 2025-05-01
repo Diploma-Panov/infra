@@ -5,6 +5,12 @@
 *.tfstate
 *.tfstate.*
 
+kubeconfig
+**/tfplan-*
+**/rendered-ingress.yaml
+aws/.terraform.lock.hcl
+.idea
+
 # Crash log files
 crash.log
 crash.*.log

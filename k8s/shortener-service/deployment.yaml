@@ -1,0 +1,184 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shortener-service
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: shortener-service
+  template:
+    metadata:
+      labels:
+        app: shortener-service
+    spec:
+      imagePullSecrets:
+        - name: regcred
+
+      initContainers:
+        - name: migrate
+          imagePullPolicy: Always
+          image: 533267200006.dkr.ecr.eu-central-1.amazonaws.com/diploma-shortener-service:prod.latest
+          command:
+            - sh
+            - -c
+            - |
+              corepack enable
+              yarn drizzle:migrate
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: shortener-service-configs
+                  key: DB_HOST
+
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: shortener-service-configs
+                  key: DB_PORT
+
+            - name: DB_PRIMARY_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: shortener-service-configs
+                  key: DB_PRIMARY_DATABASE
+
+            - name: DB_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: shortener-service-configs
+                  key: DB_USERNAME
+
+            - name: DB_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: shortener-service-configs
+                  key: DB_PASSWORD
+
+            - name: KAFKA_BOOTSTRAP_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: shortener-service-configs
+                  key: KAFKA_BOOTSTRAP_SERVER
+
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: shortener-service-configs
+                  key: REDIS_URL
+
+            - name: AUTH_SERVICE_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: shortener-service-configs
+                  key: AUTH_SERVICE_BASE_URL
+
+            - name: SHORT_URL_BASE
+              valueFrom:
+                configMapKeyRef:
+                  name: shortener-service-configs
+                  key: SHORT_URL_BASE
+
+            - name: SYSTEM_TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  name: shortener-service-configs
+                  key: SYSTEM_TOKEN
+
+            - name: STATS_TABLE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: shortener-service-configs
+                  key: STATS_TABLE_NAME
+
+      containers:
+        - name: shortener-service
+          imagePullPolicy: Always
+          image: 533267200006.dkr.ecr.eu-central-1.amazonaws.com/diploma-shortener-service:prod.latest
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /api/shrt/v0/public/platform/health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 2
+          env:
+            - name: SERVER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: shortener-service-configs
+                  key: SERVER_PORT
+
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: shortener-service-configs
+                  key: DB_HOST
+
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: shortener-service-configs
+                  key: DB_PORT
+
+            - name: DB_PRIMARY_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: shortener-service-configs
+                  key: DB_PRIMARY_DATABASE
+
+            - name: DB_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: shortener-service-configs
+                  key: DB_USERNAME
+
+            - name: DB_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: shortener-service-configs
+                  key: DB_PASSWORD
+
+            - name: KAFKA_BOOTSTRAP_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: shortener-service-configs
+                  key: KAFKA_BOOTSTRAP_SERVER
+
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: shortener-service-configs
+                  key: REDIS_URL
+
+            - name: AUTH_SERVICE_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: shortener-service-configs
+                  key: AUTH_SERVICE_BASE_URL
+
+            - name: SHORT_URL_BASE
+              valueFrom:
+                configMapKeyRef:
+                  name: shortener-service-configs
+                  key: SHORT_URL_BASE
+
+            - name: SYSTEM_TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  name: shortener-service-configs
+                  key: SYSTEM_TOKEN
+
+            - name: STATS_TABLE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: shortener-service-configs
+                  key: STATS_TABLE_NAME

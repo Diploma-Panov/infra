@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: shortener-service
+  annotations:
+    alb.ingress.kubernetes.io/healthcheck-path: /api/shrt/v0/public/platform/health
+spec:
+  type: ClusterIP
+  selector:
+    app: shortener-service
+  ports:
+    - port: 80
+      targetPort: 80

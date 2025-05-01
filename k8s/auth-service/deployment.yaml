@@ -1,0 +1,130 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: auth-service
+          imagePullPolicy: Always
+          image: 533267200006.dkr.ecr.eu-central-1.amazonaws.com/diploma-auth-service:prod.latest
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /api/auth/v0/public/platform/health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 2
+          env:
+            - name: SERVER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-service-configs
+                  key: server.port
+
+            - name: SENDGRID_API_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-service-configs
+                  key: sendgrid.api-key
+
+            - name: PLATFORM_ERRORS_HIDE_MESSAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-service-configs
+                  key: platform.errors.hide-message
+
+            - name: PLATFORM_IS_TEST
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-service-configs
+                  key: platform.is-test
+
+            - name: PLATFORM_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-service-configs
+                  key: platform.env
+
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-service-configs
+                  key: spring.datasource.url
+
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-service-configs
+                  key: spring.datasource.username
+
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-service-configs
+                  key: spring.datasource.password
+
+            - name: SPRING_DATASOURCE_HIKARI_MAXIMUMPOOLSIZE
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-service-configs
+                  key: spring.datasource.hikari.maximumPoolSize
+
+            - name: SPRING_DATA_REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-service-configs
+                  key: spring.data.redis.host
+
+            - name: SPRING_DATA_REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-service-configs
+                  key: spring.data.redis.port
+
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-service-configs
+                  key: spring.kafka.bootstrap-servers
+
+            - name: SHORTENER_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-service-configs
+                  key: shortener.base-url
+
+            - name: S3_IMAGE_BUCKET
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-service-configs
+                  key: s3.image-bucket
+
+            - name: PLATFORM_SYSTEM_TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-service-configs
+                  key: platform.system-token
+
+            - name: CDN_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-service-configs
+                  key: cdn.base-url

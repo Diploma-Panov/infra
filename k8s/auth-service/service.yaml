@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  annotations:
+    alb.ingress.kubernetes.io/healthcheck-path: /api/auth/v0/public/platform/health
+spec:
+  type: ClusterIP
+  selector:
+    app: auth-service
+  ports:
+    - port: 80
+      targetPort: 80
