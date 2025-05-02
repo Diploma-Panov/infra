@@ -23,10 +23,15 @@ https://kubernetes.io/docs/tasks/tools/
 ```
 
 5. Make changes in Kubernetes configuration
+```
+Note that you should only change ingress.yaml.template since
+rendered-ingress.yaml is a temporal working file.
+```
 
 6. Apply changes to Kubernetes cluster and services
 ```shell
-kubectl apply -f ./k8s/rendered-ingress.yaml -f ./k8s/auth-service -f ./k8s/shortener-service
+./deploy.sh # If you added changes in ./k8s/ingress.yaml.template
+kubectl apply -f ./k8s --recursive
 ```
 Or if you want to update specific configuration
 ```shell

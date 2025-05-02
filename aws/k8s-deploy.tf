@@ -1,6 +1,6 @@
 resource "null_resource" "deploy_kubernetes_configs" {
   provisioner "local-exec" {
-    command = "envsubst < ../k8s/ingress.yaml > ../k8s/rendered-ingress.yaml && kubectl apply -f ../k8s/rendered-ingress.yaml && kubectl apply -f ../k8s/auth-service && kubectl apply -f ../k8s/shortener-service"
+    command = "envsubst < ../k8s/ingress.yaml.template > ../k8s/rendered-ingress.yaml && kubectl apply -f ../k8s --recursive"
     environment = {
       KUBECONFIG = "../kubeconfig"
       ACM_CERTIFICATE_ARN  = var.acm_certificate_arn

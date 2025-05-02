@@ -1,0 +1,51 @@
+name: Restart Kubernetes Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Which component to restart?"
+        required: true
+        default: auth-service
+        type: choice
+        options:
+          - auth-service
+          - shortener-service
+          - ingress
+
+jobs:
+  restart:
+    name: Restart Selected K8s Resource
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Configure kubeconfig
+        run: |
+          aws eks update-kubeconfig --region eu-central-1 --name diploma-cluster
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: eu-central-1
+
+      - name: Restart selected Kubernetes resource
+        run: |
+          case "${{ github.event.inputs.target }}" in
+            auth-service)
+              kubectl rollout restart deployment auth-service
+              ;;
+            shortener-service)
+              kubectl rollout restart deployment shortener-service
+              ;;
+            ingress)
+              kubectl rollout restart ingress diploma-ingress
+              ;;
+            *)
+              echo "Invalid target"
+              exit 1
+              ;;
+          esac
