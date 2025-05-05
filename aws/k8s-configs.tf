@@ -16,18 +16,14 @@ resource "kubernetes_config_map" "auth_service_configs" {
     "spring.datasource.hikari.maximumPoolSize" = "80"
     "spring.data.redis.host"                   = aws_elasticache_cluster.redis.cache_nodes[0].address
     "spring.data.redis.port"                   = "6379"
-    "spring.kafka.bootstrap-servers"           = aws_msk_cluster.kafka_cluster.bootstrap_brokers
+    "spring.kafka.bootstrap-servers"           = "kafka-k8s:9092"
     "shortener.base-url"                       = "https://urls.mpanov.com"
     "s3.image-bucket"                          = aws_s3_bucket.auth_service_images.bucket
     "platform.system-token"                    = var.system_token
     "cdn.base-url"                             = "https://cdn.urls.mpanov.com/"
   }
 
-  depends_on = [
-    aws_msk_cluster.kafka_cluster
-  ]
 }
-
 
 resource "kubernetes_config_map" "shortener_service_configs" {
   metadata {
@@ -44,7 +40,7 @@ resource "kubernetes_config_map" "shortener_service_configs" {
     DB_PRIMARY_DATABASE     = "shortener_service_database"
     DB_USERNAME             = "shortenerdbuser"
     DB_PASSWORD             = random_password.rds_shortener.result
-    KAFKA_BOOTSTRAP_SERVER  = aws_msk_cluster.kafka_cluster.bootstrap_brokers
+    KAFKA_BOOTSTRAP_SERVER  = "kafka-k8s:9092"
     AUTH_SERVICE_BASE_URL   = "http://auth-service"
     SHORT_URL_BASE          = "https://mpanov.com/r"
     SYSTEM_TOKEN            = var.system_token
@@ -52,7 +48,4 @@ resource "kubernetes_config_map" "shortener_service_configs" {
     STATS_TABLE_NAME        = aws_dynamodb_table.shortener_links.name
   }
 
-  depends_on = [
-    aws_msk_cluster.kafka_cluster
-  ]
 }

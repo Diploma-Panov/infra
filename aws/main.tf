@@ -9,8 +9,8 @@ provider "aws" {
 
 provider "helm" {
   kubernetes {
-    host                   = module.eks.cluster_endpoint
-    token                  = data.aws_eks_cluster_auth.cluster_auth.token
+    host  = module.eks.cluster_endpoint
+    token = data.aws_eks_cluster_auth.cluster_auth.token
     cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
   }
 }
@@ -101,21 +101,4 @@ module "eks_node_group" {
     aws_security_group.eks_nodes_sg.id,
     module.eks.node_security_group_id
   ]
-
-  depends_on = [ module.eks ]
 }
-
-# module "alb" {
-#   source  = "terraform-aws-modules/alb/aws"
-#   version = "8.7.0"
-#
-#   name                  = "diploma-alb"
-#   load_balancer_type    = "application"
-#   internal              = false
-#
-#   vpc_id          = module.vpc.vpc_id
-#   subnets         = module.vpc.public_subnets
-#   security_groups = [module.eks.cluster_primary_security_group_id]
-#
-#   enable_deletion_protection = false
-# }

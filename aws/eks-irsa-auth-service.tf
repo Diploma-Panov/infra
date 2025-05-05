@@ -11,11 +11,16 @@ resource "aws_iam_role" "auth_service" {
       Action = "sts:AssumeRoleWithWebIdentity",
       Condition = {
         StringEquals = {
-          "${replace(local.oidc_provider_url, "https://", "")}:sub" = "system:serviceaccount:diploma:auth-service"
+
+          "${replace(local.oidc_provider_url, "https://", "")}:sub" = "system:serviceaccount:default:auth-service"
         }
       }
     }]
   })
+}
+
+data "aws_secretsmanager_secret" "dev" {
+  name = "/secret/dev"
 }
 
 resource "aws_iam_policy" "auth_service_policy" {
@@ -30,7 +35,10 @@ resource "aws_iam_policy" "auth_service_policy" {
         Action: [
           "secretsmanager:GetSecretValue"
         ],
-        Resource: var.auth_service_secret_arn
+        Resource = [
+          data.aws_secretsmanager_secret.dev.arn,
+          "${data.aws_secretsmanager_secret.dev.arn}/*"
+        ]
       },
       {
         Sid: "S3Access",

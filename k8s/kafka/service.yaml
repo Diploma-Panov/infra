@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-k8s
+  labels:
+    app: kafka-k8s
+spec:
+  type: ClusterIP
+  selector:
+    app: kafka-k8s
+  ports:
+    - name: broker
+      port: 9092
+      targetPort: 9092
