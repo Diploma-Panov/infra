@@ -84,6 +84,11 @@ resource "helm_release" "fluentbit" {
   }
 
   set {
+    name  = "output.cloudwatch.region"
+    value = "eu-central-1"
+  }
+
+  set {
     name  = "cloudWatch.region"
     value = "eu-central-1"
   }

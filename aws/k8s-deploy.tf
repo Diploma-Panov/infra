@@ -29,6 +29,7 @@ resource "kubernetes_ingress_v1" "diploma" {
       "alb.ingress.kubernetes.io/certificate-arn"  = var.alb_certificate_arn
       "alb.ingress.kubernetes.io/ssl-policy"       = "ELBSecurityPolicy-TLS13-1-2-Res-2021-06"
       "alb.ingress.kubernetes.io/target-type"      = "ip"
+      "alb.ingress.kubernetes.io/backend-protocol" = "HTTP"
     }
   }
 
