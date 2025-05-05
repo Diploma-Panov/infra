@@ -111,15 +111,15 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
         width  = 6
         height = 6
         properties = {
-          view    = "timeSeries"
-          region  = "eu-central-1"
-          title   = "API Server Request Rate"
+          view   = "timeSeries"
+          region = "eu-central-1"
+          title  = "API Server Request Rate"
 
           metrics = [
             [
               {
                 id         = "e1"
-                expression = "SEARCH('Namespace=\"AWS/EKS\" AND ClusterName=\"${module.eks.cluster_name}\"', 'AVG(apiserver_request_total)', 60)"
+                expression = "SEARCH('Namespace=\\\"AWS/EKS\\\" AND ClusterName=\\\"${module.eks.cluster_name}\\\" AND MetricName=\\\"apiserver_request_total\\\"', 'Average', 60)"
                 label      = "Request Rate"
                 period     = 60
               }
@@ -145,7 +145,7 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
             [
               {
                 id         = "e2"
-                expression = "SEARCH('Namespace=\"AWS/ApplicationELB\" AND LoadBalancer=\"${data.aws_lb.diploma_ingress_alb.name}\"', 'COUNT(HTTPCode_ELB_4XX_Count)', 60)"
+                expression = "SEARCH('Namespace=\\\"AWS/ApplicationELB\\\" AND LoadBalancer=\\\"${data.aws_lb.diploma_ingress_alb.name}\\\" AND MetricName=\\\"HTTPCode_ELB_4XX_Count\\\"', 'Sum', 60)"
                 label      = "4XX Errors"
                 period     = 60
               }
@@ -171,7 +171,7 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
             [
               {
                 id         = "e3"
-                expression = "SEARCH('Namespace=\"AWS/ApplicationELB\" AND LoadBalancer=\"${data.aws_lb.diploma_ingress_alb.name}\"', 'COUNT(HTTPCode_ELB_5XX_Count)', 60)"
+                expression = "SEARCH('Namespace=\\\"AWS/ApplicationELB\\\" AND LoadBalancer=\\\"${data.aws_lb.diploma_ingress_alb.name}\\\" AND MetricName=\\\"HTTPCode_ELB_5XX_Count\\\"', 'Sum', 60)"
                 label      = "5XX Errors"
                 period     = 60
               }
@@ -181,6 +181,7 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
           annotations = { horizontal = [], vertical = [] }
         }
       },
+
     ]
   })
 }
