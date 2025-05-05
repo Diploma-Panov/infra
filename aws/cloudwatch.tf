@@ -60,8 +60,8 @@ resource "helm_release" "fluentbit" {
   name       = "aws-for-fluent-bit"
   repository = "https://aws.github.io/eks-charts"
   chart      = "aws-for-fluent-bit"
+  version    = "0.1.35"
   namespace  = "kube-system"
-  version    = "0.22.0"
 
   set {
     name  = "serviceAccount.create"
