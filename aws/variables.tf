@@ -24,6 +24,11 @@ variable "deployer_arn" {
   type        = string
 }
 
+variable "github_actions_deployer_arn" {
+  description = "Kubernetes GitHub Actions deployer user ARN"
+  type        = string
+}
+
 variable "sendgrid_api_key" {
   description = "SendGrid API key"
   type        = string
