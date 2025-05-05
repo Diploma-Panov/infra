@@ -1,23 +1,32 @@
 resource "aws_iam_policy" "cw_logs_write" {
   name        = "EKSFluentBitCloudWatchLogs"
   description = "Allow EKS Fluent Bit to push logs to CloudWatch Logs"
-  policy = jsonencode({
+  policy      = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
+        Sid    = "AllowCloudWatchLogGroup"
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:DescribeLogGroups"
+        ]
+        Resource = "arn:aws:logs:*:*:log-group:*"
+      },
+      {
+        Sid    = "AllowCloudWatchLogStreamAndPut"
         Effect = "Allow"
         Action = [
           "logs:CreateLogStream",
-          "logs:CreateLogGroup",
-          "logs:DescribeLogGroups",
           "logs:DescribeLogStreams",
           "logs:PutLogEvents"
         ]
-        Resource = "arn:aws:logs:*:*:*"
+        Resource = "arn:aws:logs:*:*:log-group:*:log-stream:*"
       }
     ]
   })
 }
+
 
 resource "aws_iam_role" "fluentbit" {
   name = "eks-fluentbit-role"
@@ -62,6 +71,10 @@ resource "helm_release" "fluentbit" {
   chart      = "aws-for-fluent-bit"
   version    = "0.1.35"
   namespace  = "kube-system"
+
+  values = [
+    file("${path.module}/fluentbit-values.yaml")
+  ]
 
   set {
     name  = "serviceAccount.create"
