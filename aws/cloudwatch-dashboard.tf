@@ -1,18 +1,3 @@
-# ──────────────────────────────────────────────────
-data "aws_lb_target_group" "auth_tg" {
-  tags = {
-    "ingress.k8s.aws/resource": "default/diploma-ingress-auth-service:80"
-  }
-}
-
-data "aws_lb_target_group" "shortener_tg" {
-  tags = {
-    "ingress.k8s.aws/resource": "default/diploma-ingress-shortener-service:80"
-  }
-}
-
-
-# ──────────────────────────────────────────────────
 resource "aws_cloudwatch_dashboard" "infra_and_apps" {
   dashboard_name = "infra-and-apps-overview"
 
@@ -22,29 +7,6 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
       {
         type   = "metric"
         x      = 0
-        y      = 0
-        width  = 6
-        height = 6
-        properties = {
-          view    = "timeSeries"
-          region  = "eu-central-1"
-          title   = "Auth TG Healthy Hosts"
-          stacked = false
-          metrics = [
-            [
-              "AWS/ApplicationELB", "HealthyHostCount",
-              "TargetGroup", data.aws_lb_target_group.auth_tg.arn_suffix
-            ]
-          ]
-          stat   = "Average"
-          period = 300
-        }
-      },
-
-      # 2) Node CPU Utilization (by EKS tag “owned”)
-      {
-        type   = "metric"
-        x      = 6
         y      = 0
         width  = 6
         height = 6
@@ -64,11 +26,10 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
         }
       },
 
-      # 3) Node Memory Utilization (roll up across all nodes)
       {
         type   = "metric"
-        x      = 0
-        y      = 6
+        x      = 6
+        y      = 0
         width  = 6
         height = 6
         properties = {
@@ -87,10 +48,53 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
         }
       },
 
-      # 4) RDS Freeable Memory (two DB instances)
       {
         type   = "metric"
-        x      = 6
+        x      = 12
+        y      = 0
+        width  = 6
+        height = 6
+        properties = {
+          view    = "timeSeries"
+          region  = "eu-central-1"
+          title   = "Node Network In"
+          stacked = false
+          metrics = [
+            [
+              "AWS/EC2", "NetworkIn",
+              "Tag:kubernetes.io/cluster/${module.eks.cluster_name}", "owned"
+            ]
+          ]
+          stat   = "Sum"
+          period = 300
+        }
+      },
+
+      {
+        type   = "metric"
+        x      = 18
+        y      = 0
+        width  = 6
+        height = 6
+        properties = {
+          view    = "timeSeries"
+          region  = "eu-central-1"
+          title   = "Node Network Out"
+          stacked = false
+          metrics = [
+            [
+              "AWS/EC2", "NetworkOut",
+              "Tag:kubernetes.io/cluster/${module.eks.cluster_name}", "owned"
+            ]
+          ]
+          stat   = "Sum"
+          period = 300
+        }
+      },
+
+      {
+        type   = "metric"
+        x      = 0
         y      = 6
         width  = 6
         height = 6
@@ -114,11 +118,10 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
         }
       },
 
-      # 5) RDS DB Connections (two DB instances)
       {
         type   = "metric"
-        x      = 0
-        y      = 12
+        x      = 6
+        y      = 6
         width  = 6
         height = 6
         properties = {
@@ -141,11 +144,10 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
         }
       },
 
-      # 6) Redis Current Connections
       {
         type   = "metric"
-        x      = 6
-        y      = 12
+        x      = 12
+        y      = 6
         width  = 6
         height = 6
         properties = {
@@ -164,7 +166,117 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
         }
       },
 
-      # 7) ALB Target Latency (TargetResponseTime requires LoadBalancer + TargetGroup)
+      {
+        type   = "metric"
+        x      = 18
+        y      = 6
+        width  = 6
+        height = 6
+        properties = {
+          view    = "timeSeries"
+          region  = "eu-central-1"
+          title   = "DynamoDB Read Capacity"
+          stacked = false
+          metrics = [
+            [
+              "AWS/DynamoDB", "ConsumedReadCapacityUnits",
+              "TableName", aws_dynamodb_table.shortener_links.name
+            ]
+          ]
+          stat   = "Sum"
+          period = 300
+        }
+      },
+
+      {
+        type   = "metric"
+        x      = 0
+        y      = 12
+        width  = 6
+        height = 6
+        properties = {
+          view    = "timeSeries"
+          region  = "eu-central-1"
+          title   = "ALB Request Count"
+          stacked = false
+          metrics = [
+            [
+              "AWS/ApplicationELB", "RequestCount",
+              "LoadBalancer", data.aws_lb.diploma_ingress_alb.name
+            ]
+          ]
+          stat   = "Sum"
+          period = 60
+        }
+      },
+
+      {
+        type   = "metric"
+        x      = 6
+        y      = 12
+        width  = 6
+        height = 6
+        properties = {
+          view    = "timeSeries"
+          region  = "eu-central-1"
+          title   = "ALB Healthy Hosts"
+          stacked = false
+          metrics = [
+            [
+              "AWS/ApplicationELB", "HealthyHostCount",
+              "LoadBalancer", data.aws_lb.diploma_ingress_alb.name
+            ]
+          ]
+          stat   = "Average"
+          period = 60
+        }
+      },
+
+      {
+        type   = "metric"
+        x      = 12
+        y      = 12
+        width  = 6
+        height = 6
+        properties = {
+          view    = "timeSeries"
+          region  = "eu-central-1"
+          title   = "ALB 5XX Errors"
+          stacked = false
+          metrics = [
+            [
+              "AWS/ApplicationELB", "HTTPCode_ELB_5XX_Count",
+              "LoadBalancer", data.aws_lb.diploma_ingress_alb.name
+            ]
+          ]
+          stat   = "Sum"
+          period = 60
+        }
+      },
+
+      {
+        type   = "metric"
+        x      = 18
+        y      = 12
+        width  = 6
+        height = 6
+        properties = {
+          view    = "timeSeries"
+          region  = "eu-central-1"
+          title   = "ALB 4XX Errors"
+          stacked = false
+          metrics = [
+            [
+              "AWS/ApplicationELB", "HTTPCode_ELB_4XX_Count",
+              "LoadBalancer", data.aws_lb.diploma_ingress_alb.name
+            ]
+          ]
+          stat   = "Sum"
+          period = 60
+        }
+      },
+
+
       {
         type   = "metric"
         x      = 0
@@ -174,21 +286,19 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
         properties = {
           view    = "timeSeries"
           region  = "eu-central-1"
-          title   = "ALB Target Latency (ms)"
+          title   = "DynamoDB Write Capacity"
           stacked = false
           metrics = [
             [
-              "AWS/ApplicationELB", "TargetResponseTime",
-              "LoadBalancer", data.aws_lb.diploma_ingress_alb.name,
-              "TargetGroup", data.aws_lb_target_group.auth_tg.arn_suffix
+              "AWS/DynamoDB", "ConsumedWriteCapacityUnits",
+              "TableName", aws_dynamodb_table.shortener_links.name
             ]
           ]
-          stat   = "Average"
-          period = 60
+          stat   = "Sum"
+          period = 300
         }
       },
 
-      # 8) (Optional) Shortener TG Healthy Hosts
       {
         type   = "metric"
         x      = 6
@@ -198,16 +308,62 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
         properties = {
           view    = "timeSeries"
           region  = "eu-central-1"
-          title   = "Shortener TG Healthy Hosts"
+          title   = "DynamoDB Throttle Events"
           stacked = false
           metrics = [
             [
-              "AWS/ApplicationELB", "HealthyHostCount",
-              "TargetGroup", data.aws_lb_target_group.shortener_tg.arn_suffix
+              "AWS/DynamoDB", "WriteThrottleEvents",
+              "TableName", aws_dynamodb_table.shortener_links.name
+            ]
+          ]
+          stat   = "Sum"
+          period = 300
+        }
+      },
+
+      {
+        type   = "metric"
+        x      = 12
+        y      = 18
+        width  = 6
+        height = 6
+        properties = {
+          view    = "timeSeries"
+          region  = "eu-central-1"
+          title   = "S3 Bucket Size (Bytes)"
+          stacked = false
+          metrics = [
+            [
+              "AWS/S3", "BucketSizeBytes",
+              "BucketName", aws_s3_bucket.auth_service_images.bucket,
+              "StorageType", "StandardStorage"
             ]
           ]
           stat   = "Average"
-          period = 300
+          period = 86400
+        }
+      },
+
+      {
+        type   = "metric"
+        x      = 18
+        y      = 18
+        width  = 6
+        height = 6
+        properties = {
+          view    = "timeSeries"
+          region  = "eu-central-1"
+          title   = "S3 Number of Objects"
+          stacked = false
+          metrics = [
+            [
+              "AWS/S3", "NumberOfObjects",
+              "BucketName", aws_s3_bucket.auth_service_images.bucket,
+              "StorageType", "AllStorageTypes"
+            ]
+          ]
+          stat   = "Average"
+          period = 86400
         }
       },
 
