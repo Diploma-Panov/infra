@@ -114,7 +114,6 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
           view   = "timeSeries"
           region = "eu-central-1"
           title  = "API Server Request Rate"
-
           metrics = [
             [
               {
@@ -125,7 +124,6 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
               }
             ]
           ]
-
           annotations = { horizontal = [], vertical = [] }
         }
       },
@@ -140,7 +138,6 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
           view   = "timeSeries"
           region = "eu-central-1"
           title  = "ALB 4XX Errors (Count)"
-
           metrics = [
             [
               {
@@ -151,7 +148,6 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
               }
             ]
           ]
-
           annotations = { horizontal = [], vertical = [] }
         }
       },
@@ -166,7 +162,6 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
           view   = "timeSeries"
           region = "eu-central-1"
           title  = "ALB 5XX Errors (Count)"
-
           metrics = [
             [
               {
@@ -177,7 +172,30 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
               }
             ]
           ]
+          annotations = { horizontal = [], vertical = [] }
+        }
+      },
 
+      {
+        type   = "metric"
+        x      = 18
+        y      = 24
+        width  = 6
+        height = 6
+        properties = {
+          view   = "timeSeries"
+          region = "eu-central-1"
+          title  = "ALB Request Count"
+          metrics = [
+            [
+              {
+                id         = "e4"
+                expression = "SEARCH('Namespace=\\\"AWS/ApplicationELB\\\" AND LoadBalancer=\\\"${data.aws_lb.diploma_ingress_alb.name}\\\" AND MetricName=\\\"RequestCount\\\"', 'Sum', 60)"
+                label      = "Request Count"
+                period     = 60
+              }
+            ]
+          ]
           annotations = { horizontal = [], vertical = [] }
         }
       },
