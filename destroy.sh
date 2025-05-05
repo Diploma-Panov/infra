@@ -1,23 +1,27 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "🔧 Running Kubernetes cleanup…"
+set +e
 
 aws eks update-kubeconfig \
   --region eu-central-1 \
   --name diploma-cluster
 
 kubectl delete -f=./k8s --recursive
-
 kubectl delete ingress diploma-ingress \
   -n default \
   --grace-period=0 \
   --force \
   --wait=false
-
 kubectl patch ingress diploma-ingress \
   -n default \
   --type=merge \
   -p '{"metadata":{"finalizers":[]}}'
 
+set -e
+
+echo "💥 Destroying Terraform-managed infra…"
 terraform -chdir=aws destroy \
   -var="alb_certificate_arn=${ALB_CERTIFICATE_ARN}" \
   -var="sendgrid_api_key=${SENDGRID_API_KEY}" \
