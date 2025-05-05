@@ -7,6 +7,16 @@ jobs:
   destroy:
     name: Run destroy.sh (restricted)
     runs-on: ubuntu-latest
+    env:
+      AWS_REGION: eu-central-1
+      TF_STATE_BUCKET: ${{ secrets.TF_STATE_BUCKET }}
+      TF_STATE_KEY: '${{ github.repository }}.tfstate'
+      SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+      DEPLOYER_ARN: ${{ secrets.DEPLOYER_ARN }}
+      ACM_CERTIFICATE_ARN: ${{ secrets.ACM_CERTIFICATE_ARN }}
+      ALB_CERTIFICATE_ARN: ${{ secrets.ALB_CERTIFICATE_ARN }}
+      ROUTE_53_ZONE_ID: ${{ secrets.ROUTE_53_ZONE_ID }}
+      SYSTEM_TOKEN: ${{ secrets.SYSTEM_TOKEN }}
 
     steps:
       - name: Restrict to organization admins
@@ -25,13 +35,18 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up Terraform
+      - name: Install Terraform CLI
         uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.7
 
-      - name: Init Terraform
+      - name: Terraform Init (with S3 backend)
         run: |
-          cd ./aws
-          terraform init -upgrade
+          cd aws
+          terraform init -upgrade \
+            -backend-config="bucket=${TF_STATE_BUCKET}" \
+            -backend-config="key=${TF_STATE_KEY}" \
+            -backend-config="region=${AWS_REGION}"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -42,10 +57,3 @@ jobs:
 
       - name: Run destroy.sh
         run: ./destroy.sh
-        env:
-          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
-          DEPLOYER_ARN: ${{ secrets.DEPLOYER_ARN }}
-          ACM_CERTIFICATE_ARN: ${{ secrets.ACM_CERTIFICATE_ARN }}
-          ALB_CERTIFICATE_ARN: ${{ secrets.ALB_CERTIFICATE_ARN }}
-          ROUTE_53_ZONE_ID: ${{ secrets.ROUTE_53_ZONE_ID }}
-          SYSTEM_TOKEN: ${{ secrets.SYSTEM_TOKEN }}

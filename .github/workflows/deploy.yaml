@@ -8,31 +8,40 @@ jobs:
     name: Run deploy.sh
     runs-on: ubuntu-latest
 
+    env:
+      AWS_REGION:      eu-central-1
+      TF_STATE_BUCKET: ${{ secrets.TF_STATE_BUCKET }}
+      TF_STATE_KEY:    '${{ github.repository }}.tfstate'
+      SENDGRID_API_KEY:    ${{ secrets.SENDGRID_API_KEY }}
+      DEPLOYER_ARN:        ${{ secrets.DEPLOYER_ARN }}
+      ACM_CERTIFICATE_ARN: ${{ secrets.ACM_CERTIFICATE_ARN }}
+      ALB_CERTIFICATE_ARN: ${{ secrets.ALB_CERTIFICATE_ARN }}
+      ROUTE_53_ZONE_ID:    ${{ secrets.ROUTE_53_ZONE_ID }}
+      SYSTEM_TOKEN:        ${{ secrets.SYSTEM_TOKEN }}
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Init Terraform
-        run: |
-          cd ./aws
-          terraform init -upgrade
-
-      - name: Configure AWS credentials
+      - name: Set up AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-central-1
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - name: Install Terraform CLI
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.7
+
+      - name: Terraform Init (with S3 backend)
+        run: |
+          cd aws
+          terraform init -upgrade \
+            -backend-config="bucket=${TF_STATE_BUCKET}" \
+            -backend-config="key=${TF_STATE_KEY}" \
+            -backend-config="region=${AWS_REGION}"
 
       - name: Run deploy.sh
         run: ./deploy.sh
-        env:
-          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
-          DEPLOYER_ARN: ${{ secrets.DEPLOYER_ARN }}
-          ACM_CERTIFICATE_ARN: ${{ secrets.ACM_CERTIFICATE_ARN }}
-          ALB_CERTIFICATE_ARN: ${{ secrets.ALB_CERTIFICATE_ARN }}
-          ROUTE_53_ZONE_ID: ${{ secrets.ROUTE_53_ZONE_ID }}
-          SYSTEM_TOKEN: ${{ secrets.SYSTEM_TOKEN }}
