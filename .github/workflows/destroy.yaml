@@ -17,6 +17,7 @@ jobs:
       ALB_CERTIFICATE_ARN: ${{ secrets.ALB_CERTIFICATE_ARN }}
       ROUTE_53_ZONE_ID: ${{ secrets.ROUTE_53_ZONE_ID }}
       SYSTEM_TOKEN: ${{ secrets.SYSTEM_TOKEN }}
+      ACTIONS_DEPLOYER_ARN: ${{ secrets.ACTIONS_DEPLOYER_ARN }}
 
     steps:
       - name: Restrict to organization admins
