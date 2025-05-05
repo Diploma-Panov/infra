@@ -29,6 +29,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region:            eu-central-1
 
+      - name: Install AWS CLI v2
+        uses: aws-actions/setup-aws-cli@v2
+        with:
+          version: '2'
+
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
         with:
@@ -44,12 +49,16 @@ jobs:
         run: |
           case "${{ github.event.inputs.target }}" in
             auth-service)
-              kubectl rollout restart deployment/auth-service ;;
+              kubectl rollout restart deployment auth-service
+              ;;
             shortener-service)
-              kubectl rollout restart deployment/shortener-service ;;
+              kubectl rollout restart deployment shortener-service
+              ;;
             ingress)
-              kubectl rollout restart ingress/diploma-ingress ;;
+              kubectl rollout restart ingress diploma-ingress
+              ;;
             *)
               echo "Invalid target: ${{ github.event.inputs.target }}" >&2
-              exit 1 ;;
+              exit 1
+              ;;
           esac
