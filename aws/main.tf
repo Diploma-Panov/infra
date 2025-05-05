@@ -55,6 +55,21 @@ module "eks" {
   version = "20.9.0"
 
   access_entries = {
+    github_actions = {
+      principal_arn = var.github_actions_deployer_arn
+      kubernetes_groups = []
+
+      policy_associations = {
+        eks_admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy"
+          access_scope = { type = "cluster" }
+        }
+        eks_cluster_admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = { type = "cluster" }
+        }
+      }
+    },
     kubernetes_deployer = {
       principal_arn = var.deployer_arn
       kubernetes_groups = []
