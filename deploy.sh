@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-echo $ACTIONS_DEPLOYER_ARN
-
 echo "Planning & Applying *all* Infrastructure"
 terraform -chdir=aws plan \
   -var="alb_certificate_arn=${ALB_CERTIFICATE_ARN}" \
