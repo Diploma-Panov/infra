@@ -25,8 +25,8 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
               ".", aws_db_instance.shortener_db.identifier
             ]
           ]
-          stat   = "Average"
-          period = 60
+          stat        = "Average"
+          period      = 60
           annotations = { horizontal = [], vertical = [] }
         }
       },
@@ -52,8 +52,8 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
               ".", aws_db_instance.shortener_db.identifier
             ]
           ]
-          stat   = "Average"
-          period = 60
+          stat        = "Average"
+          period      = 60
           annotations = { horizontal = [], vertical = [] }
         }
       },
@@ -75,8 +75,8 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
               "CacheClusterId", aws_elasticache_cluster.redis.cluster_id
             ]
           ]
-          stat   = "Average"
-          period = 60
+          stat        = "Average"
+          period      = 60
           annotations = { horizontal = [], vertical = [] }
         }
       },
@@ -98,8 +98,8 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
               "TableName", aws_dynamodb_table.shortener_links.name
             ]
           ]
-          stat   = "Sum"
-          period = 60
+          stat        = "Sum"
+          period      = 60
           annotations = { horizontal = [], vertical = [] }
         }
       },
@@ -116,11 +116,16 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
           title   = "API Server Request Rate"
           stat    = "Average"
           period  = 60
-
-          metrics     = []
+          metrics = [
+            [
+              {
+                expression = "SEARCH('Namespace=\"AWS/EKS\" AND ClusterName=\"${module.eks.cluster_name}\"', 'AVG(apiserver_request_total)', 60)"
+                id         = "e1"
+                label      = "Request Rate"
+              }
+            ]
+          ]
           annotations = { horizontal = [], vertical = [] }
-
-          query = "SEARCH('Namespace=\\\"AWS/EKS\\\" AND ClusterName=\\\"${module.eks.cluster_name}\\\"', 'AVG(apiserver_request_total)', 60)"
         }
       },
 
@@ -136,11 +141,16 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
           title   = "ALB 4XX Errors (Count)"
           stat    = "Sum"
           period  = 60
-
-          metrics     = []
+          metrics = [
+            [
+              {
+                expression = "SEARCH('Namespace=\"AWS/ApplicationELB\" AND LoadBalancer=\"${data.aws_lb.diploma_ingress_alb.name}\"', 'COUNT(HTTPCode_ELB_4XX_Count)', 60)"
+                id         = "e2"
+                label      = "4XX Errors"
+              }
+            ]
+          ]
           annotations = { horizontal = [], vertical = [] }
-
-          query = "SEARCH('Namespace=\\\"AWS/ApplicationELB\\\" AND LoadBalancer=\\\"${data.aws_lb.diploma_ingress_alb.name}\\\"', 'COUNT(HTTPCode_ELB_4XX_Count)', 60)"
         }
       },
 
@@ -156,11 +166,16 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
           title   = "ALB 5XX Errors (Count)"
           stat    = "Sum"
           period  = 60
-
-          metrics     = []
+          metrics = [
+            [
+              {
+                expression = "SEARCH('Namespace=\"AWS/ApplicationELB\" AND LoadBalancer=\"${data.aws_lb.diploma_ingress_alb.name}\"', 'COUNT(HTTPCode_ELB_5XX_Count)', 60)"
+                id         = "e3"
+                label      = "5XX Errors"
+              }
+            ]
+          ]
           annotations = { horizontal = [], vertical = [] }
-
-          query = "SEARCH('Namespace=\\\"AWS/ApplicationELB\\\" AND LoadBalancer=\\\"${data.aws_lb.diploma_ingress_alb.name}\\\"', 'COUNT(HTTPCode_ELB_5XX_Count)', 60)"
         }
       },
 
