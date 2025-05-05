@@ -27,26 +27,23 @@ resource "aws_iam_policy" "cw_logs_write" {
   })
 }
 
-
 resource "aws_iam_role" "fluentbit" {
   name = "eks-fluentbit-role"
 
   assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect = "Allow",
-        Principal = {
-          Federated = local.oidc_provider_arn
-        },
-        Action = "sts:AssumeRoleWithWebIdentity",
-        Condition = {
-          StringEquals = {
-            "${local.oidc_provider_url}:sub" = "system:serviceaccount:kube-system:fluentbit"
-          }
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow",
+      Principal = {
+        Federated = local.oidc_provider_arn
+      },
+      Action = "sts:AssumeRoleWithWebIdentity"
+      Condition = {
+        StringEquals = {
+          "${replace(local.oidc_provider_url, "https://", "")}:sub" = "system:serviceaccount:kube-system:fluentbit"
         }
       }
-    ]
+    }]
   })
 }
 
