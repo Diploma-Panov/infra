@@ -25,6 +25,7 @@ data "aws_eks_cluster_auth" "cluster_auth" {
   name = module.eks.cluster_name
 }
 
+
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "5.1.0"
