@@ -1,0 +1,21 @@
+filter:
+  kubernetes:
+    match: kube.*
+    merge_log: true
+
+extraOutputs: |
+  [OUTPUT]
+      Name            cloudwatch_logs
+      Match           kube.default.auth-service.*
+      region          eu-central-1
+      log_group_name  /aws/eks/${CLUSTER_NAME}/auth-service
+      log_stream_prefix  auth-
+      auto_create_group  true
+
+  [OUTPUT]
+      Name            cloudwatch_logs
+      Match           kube.default.shortener-service.*
+      region          eu-central-1
+      log_group_name  /aws/eks/${CLUSTER_NAME}/shortener-service
+      log_stream_prefix  shortener-
+      auto_create_group  true
