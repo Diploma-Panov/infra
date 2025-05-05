@@ -15,6 +15,11 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Init Terraform
+        run: |
+          cd ./aws
+          terraform init -upgrade
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -28,6 +33,6 @@ jobs:
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
           DEPLOYER_ARN: ${{ secrets.DEPLOYER_ARN }}
           ACM_CERTIFICATE_ARN: ${{ secrets.ACM_CERTIFICATE_ARN }}
+          ALB_CERTIFICATE_ARN: ${{ secrets.ALB_CERTIFICATE_ARN }}
           ROUTE_53_ZONE_ID: ${{ secrets.ROUTE_53_ZONE_ID }}
           SYSTEM_TOKEN: ${{ secrets.SYSTEM_TOKEN }}
-          SECRET_ARN: ${{ secrets.AUTH_SERVICE_SECRET_ARN }}

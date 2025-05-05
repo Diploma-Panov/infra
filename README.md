@@ -12,23 +12,32 @@ export SYSTEM_TOKEN=...        # Authorization token for cross-microservice comm
 export SECRET_ARN=...          # AWS ARN identifier of Secrets Manager's secret for auth-service application
 ```
 
-2. Install `kubectl`
+2. Install `kubectl` and `terraform`
 https://kubernetes.io/docs/tasks/tools/
+https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli
 
-3. Make changes in Terraform configurations
+3. Initialize Terraform
+```shell
+cd aws
+terraform init
+terraform get
+cd ..
+```
 
-4. Apply changes of the infrastructure (or launch from scratch if it is currently inactive)
+4. Make changes in Terraform configurations
+
+5. Apply changes of the infrastructure (or launch from scratch if it is currently inactive)
 ```shell
 ./deploy.sh
 ```
 
-5. Make changes in Kubernetes configuration
+6. Make changes in Kubernetes configuration
 ```
 Note that you should only change ingress.yaml.template since
 rendered-ingress.yaml is a temporal working file.
 ```
 
-6. Apply changes to Kubernetes cluster and services
+7. Apply changes to Kubernetes cluster and services
 ```shell
 ./deploy.sh # If you added changes in ./k8s/ingress.yaml.template
 kubectl apply -f ./k8s --recursive
@@ -39,12 +48,12 @@ kubectl apply -f ./k8s/auth-service
 kubectl apply -f ./k8s/shortener-service/deployment.yaml
 ```
 
-7. (Optional) Reload all services (update images)
+8. (Optional) Reload all services (update images)
 ```shell
 kubectl rollout restart deployment
 ```
 
-8. Destroy the infrastructure completely
+9. Destroy the infrastructure completely
 ```shell
 kubectl destroy -f ./k8s/rendered-ingress.yaml ./k8s/auth-service ./k8s/shortener-service
 ./destroy.sh

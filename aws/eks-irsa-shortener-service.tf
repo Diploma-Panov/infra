@@ -11,7 +11,7 @@ resource "aws_iam_role" "shortener_service" {
       Action = "sts:AssumeRoleWithWebIdentity",
       Condition = {
         StringEquals = {
-          "${replace(local.oidc_provider_url, "https://", "")}:sub" = "system:serviceaccount:diploma:shortener-service"
+          "${replace(local.oidc_provider_url, "https://", "")}:sub" = "system:serviceaccount:default:shortener-service"
         }
       }
     }]

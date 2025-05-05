@@ -1,5 +1,10 @@
 variable "acm_certificate_arn" {
-  description = "ACM Certificate ARN for HTTPS listener"
+  description = "ACM Certificate ARN for Cloudfront"
+  type        = string
+}
+
+variable "alb_certificate_arn" {
+  description = "ALB Certificate ARN for HTTPS listener"
   type        = string
 }
 
@@ -12,11 +17,6 @@ variable "system_token" {
   description = "System authentication token used by services"
   type        = string
   sensitive   = true
-}
-
-variable "auth_service_secret_arn" {
-  description = "ARN of SecretsManager secret accessible by auth-service"
-  type        = string
 }
 
 variable "deployer_arn" {

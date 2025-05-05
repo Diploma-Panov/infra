@@ -17,6 +17,7 @@ spec:
       labels:
         app: auth-service
     spec:
+      serviceAccountName: auth-service
       imagePullSecrets:
         - name: regcred
       containers:
@@ -128,3 +129,15 @@ spec:
                 configMapKeyRef:
                   name: auth-service-configs
                   key: cdn.base-url
+
+            - name: AWS_ROLE_ARN
+              value: arn:aws:iam::533267200006:role/eks-auth-service-role
+
+            - name: AWS_WEB_IDENTITY_TOKEN_FILE
+              value: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
+
+            - name: AWS_REGION
+              value: eu-central-1
+
+            - name: AWS_DEFAULT_REGION
+              value: eu-central-1
