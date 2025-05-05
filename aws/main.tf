@@ -109,8 +109,8 @@ module "eks_node_group" {
   cluster_endpoint        = module.eks.cluster_endpoint
   cluster_auth_base64     = module.eks.cluster_certificate_authority_data
   min_size                = 1
-  max_size                = 8
-  desired_size            = 4
+  max_size                = 4
+  desired_size            = 2
   instance_types          = ["t3.medium"]
 
   vpc_security_group_ids = [
