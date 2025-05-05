@@ -27,6 +27,7 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
           ]
           stat   = "Average"
           period = 60
+          annotations = { horizontal = [], vertical = [] }
         }
       },
 
@@ -53,6 +54,7 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
           ]
           stat   = "Average"
           period = 60
+          annotations = { horizontal = [], vertical = [] }
         }
       },
 
@@ -75,6 +77,7 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
           ]
           stat   = "Average"
           period = 60
+          annotations = { horizontal = [], vertical = [] }
         }
       },
 
@@ -97,6 +100,7 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
           ]
           stat   = "Sum"
           period = 60
+          annotations = { horizontal = [], vertical = [] }
         }
       },
 
@@ -112,7 +116,11 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
           title   = "API Server Request Rate"
           stat    = "Average"
           period  = 60
-          query   = "SEARCH('Namespace=\\\"AWS/EKS\\\" AND ClusterName=\\\"${module.eks.cluster_name}\\\"', 'AVG(apiserver_request_total)', 60)"
+
+          metrics     = []
+          annotations = { horizontal = [], vertical = [] }
+
+          query = "SEARCH('Namespace=\\\"AWS/EKS\\\" AND ClusterName=\\\"${module.eks.cluster_name}\\\"', 'AVG(apiserver_request_total)', 60)"
         }
       },
 
@@ -128,7 +136,11 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
           title   = "ALB 4XX Errors (Count)"
           stat    = "Sum"
           period  = 60
-          query   = "SEARCH('Namespace=\\\"AWS/ApplicationELB\\\" AND LoadBalancer=\\\"${data.aws_lb.diploma_ingress_alb.name}\\\"', 'COUNT(HTTPCode_ELB_4XX_Count)', 60)"
+
+          metrics     = []
+          annotations = { horizontal = [], vertical = [] }
+
+          query = "SEARCH('Namespace=\\\"AWS/ApplicationELB\\\" AND LoadBalancer=\\\"${data.aws_lb.diploma_ingress_alb.name}\\\"', 'COUNT(HTTPCode_ELB_4XX_Count)', 60)"
         }
       },
 
@@ -144,7 +156,11 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
           title   = "ALB 5XX Errors (Count)"
           stat    = "Sum"
           period  = 60
-          query   = "SEARCH('Namespace=\\\"AWS/ApplicationELB\\\" AND LoadBalancer=\\\"${data.aws_lb.diploma_ingress_alb.name}\\\"', 'COUNT(HTTPCode_ELB_5XX_Count)', 60)"
+
+          metrics     = []
+          annotations = { horizontal = [], vertical = [] }
+
+          query = "SEARCH('Namespace=\\\"AWS/ApplicationELB\\\" AND LoadBalancer=\\\"${data.aws_lb.diploma_ingress_alb.name}\\\"', 'COUNT(HTTPCode_ELB_5XX_Count)', 60)"
         }
       },
 
