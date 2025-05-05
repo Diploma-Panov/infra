@@ -189,52 +189,6 @@ resource "aws_cloudwatch_dashboard" "infra_and_apps" {
           }
         }
       },
-
-      {
-        type   = "metric"
-        x      = 6
-        y      = 18
-        width  = 6
-        height = 6
-        properties = {
-          view        = "timeSeries"
-          region      = "eu-central-1"
-          title       = "5xx Errors by Service"
-          stacked     = false
-          metrics     = [
-            [
-              "AWS/ApplicationELB", "HTTPCode_Target_5XX_Count",
-              "TargetGroup", data.aws_lb_target_group.auth_tg.arn_suffix
-            ],
-            [
-              ".", "HTTPCode_Target_5XX_Count",
-              ".", data.aws_lb_target_group.shortener_tg.arn_suffix
-            ]
-          ]
-          stat        = "Sum"
-          period      = 60
-          annotations = {
-            horizontal = []
-            vertical   = []
-          }
-        }
-      },
     ]
   })
-}
-
-data "aws_lb_target_group" "auth_tg" {
-  tags = {
-    "elbv2.k8s.aws/cluster"       = module.eks.cluster_name
-    "ingress.k8s.aws/stack"       = "default/diploma-ingress"
-    "elbv2.k8s.aws/targetGroup"   = "default/auth-service-80"
-  }
-}
-
-data "aws_lb_target_group" "shortener_tg" {
-  tags = {
-    "elbv2.k8s.aws/cluster"       = module.eks.cluster_name
-    "ingress.k8s.aws/stack"       = "default/diploma-ingress"
-    "elbv2.k8s.aws/targetGroup"   = "default/shortener-service-80"
-  }
 }
